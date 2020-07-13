@@ -1,0 +1,289 @@
+@page "/wordgame"
+@using Microsoft.AspNetCore.SignalR.Client
+@inject NavigationManager NavigationManager
+@implements IDisposable
+@inject IJSRuntime JSRuntime
+
+@if(!isFullRoom) {
+    <span style="display: flex; justify-content: flex-end">
+        <div><h3><b><font color="#46CB18">Total Win Match: @globalScore</font></b></h3></div>
+    </span>
+}
+<div class="form-group">
+    @if(!isLogin  && !isFullRoom) {
+        <label>
+            User: <input @bind="userName" @ref=ReferenceToLoginControl/>
+        </label>
+        <button @onclick="Send" disabled="@(!IsConnected)">Login</button>
+    }
+    else if(!isFullRoom){
+        <label><h2><b>User :</b> @userName</h2></label> <br>  
+        <label><h2><b>Money :</b> @money ₺</h2></label> 
+         <label>
+            <input @bind="answer" style="text-transform: uppercase; font-weight: bold; font-family: Arial, Helvetica, sans-serif; color: green; font-size: 60px;"/>
+        </label>
+        <button @onclick="Answer">Answer</button>
+    }
+</div>
+<div class="form-group">
+    @if(_otherUser!=null) {
+        <label><h2><b>Other User :</b> @_otherUser</h2></label> <br>  
+        <label><h2><b>Other User's Money :</b> @_otherMoney ₺</h2></label>     
+    }
+</div>
+ @if(word!=null) {
+    <hr>
+    <div class="container">
+        @* @word *@
+        <div class="jumbotron jumbotron-fluid">
+                <div class="container-fluid text-center">
+                    @for (int i=0;i<word.Length;i++)
+                    {  
+                        string imgId="image-"+@i;
+                        string lblId="label-"+@i;
+                        <span style="display: none;" id="label-@i">@word[i].ToString().ToUpper()</span>                   
+                        if(word[i]!=' ')
+                        {                    
+                            <img src="/Images/block.png" id="image-@i" asp-append-version="true" width="50px" style ="display: inline;" @onclick="@(() => Open(i,imgId,lblId,false))"/>
+                        }
+                        else
+                        {
+                            <img src="/Images/blockEmpty.png" id="image-@i" asp-append-version="true" width="50px" style ="display: inline;"/>
+                        }               
+                    }
+                </div>
+
+                @* <h1 class="display-4 text-sm-center">@word</h1> *@
+        </div>    
+    </div>
+ }
+@* <ul id="messagesList">
+    @foreach (var message in messages)
+    {
+        <li>@message</li>
+    }
+</ul> *@
+
+@code {
+    private int globalScore=0;
+    private bool isFullRoom=false;
+    ElementReference ReferenceToLoginControl;
+    private HubConnection hubConnection;
+    private List<string> messages = new List<string>();
+    private string userName;
+    private string _otherUser;
+    private int _otherMoney = 0;
+    private string word;
+    private string connectionID;
+    private bool isLogin = false;
+    private int money = 0;
+    private string answer;
+    protected override async Task OnInitializedAsync()
+    {
+        hubConnection = new HubConnectionBuilder()
+            .WithUrl(NavigationManager.ToAbsoluteUri("/wordhub"))
+            .Build();
+
+        hubConnection.On<string, string, int>("GetConnectionId", async (_connectionID, otherUser, otherMoney) =>
+          {       
+              await JSRuntime.InvokeAsync<object>("console.log", "ConnectionID :" + _connectionID);                           
+          connectionID = _connectionID;
+              if (otherUser != null && IsRenderUI == true)
+              {
+                  _otherMoney = otherMoney;
+                  _otherUser = otherUser;
+                  StateHasChanged();
+              }
+          });
+
+        hubConnection.On<string, string, int>("ReceiveUser", (_userName, _connectionId, _money) =>
+         {
+             if (userName == _userName)
+             {
+                 money = _money;
+                 isLogin = true;
+             }
+             else
+             {
+                 _otherMoney = _money;
+                 _otherUser = _userName;
+             }
+             StateHasChanged();
+         });
+
+        hubConnection.On<string, string>("RemoveUser", (_userName, _connectionId) =>
+            {
+                if (userName != _userName)
+                {
+                    _otherUser = null;
+                    _otherMoney = 0;
+                    @* word = ""; *@
+                    word = null;
+                    StateHasChanged();
+                }
+            });
+
+        hubConnection.On<string, string, int>("ReceiveWord", (_wordText, _userName, _money) =>
+          {
+              if (userName != _userName)
+              {
+                  _otherUser = _userName;
+                  _otherMoney = _money;
+              }
+              else
+              {
+                  money = _money;
+                  isLogin = true;
+              }
+              word = _wordText;
+              StateHasChanged();
+          });
+
+        hubConnection.On<string>("RefreshWord", async (_wordText) =>
+        {
+            for (int i = 0; i < word.Length; i++)
+            {
+                if (word[i] != ' ')
+                {
+                    string imgId = "image-" + @i;
+                    string lblId = "label-" + @i;
+
+                    await JSRuntime.InvokeVoidAsync("applyStyleForElement",
+                                          new { id = imgId, attrib = "display", value = "inline" });
+
+                    await JSRuntime.InvokeVoidAsync("applyStyleForElement",
+                                          new { id = lblId, attrib = "display", value = "none" },
+                                          new { id = lblId, attrib = "font-size", value = "65px" });
+                }
+            }
+
+            word = _wordText;
+            answer = "";
+            StateHasChanged();
+        });
+
+        hubConnection.On<int, string, string, int>("ReceiveOpen", async (counter, imgId, lblId, _money) =>
+           {
+               _otherMoney = _money;
+               StateHasChanged();
+               await Open(counter, imgId, lblId, true);
+           });
+
+        hubConnection.On("ComeLater", async () =>
+           { 
+                isFullRoom = true;
+                await JSRuntime.InvokeVoidAsync("applyStyleForElement",
+                                                    new { id = "blazorBody", attrib = "background-image", value = "url('../Images/wall31.jpeg')" });
+                  
+                StateHasChanged();              
+           });
+           
+
+        hubConnection.On<string, string,int>("ReceiveAnswer", async (userName, connectionID,money) =>
+           {
+               for (int i = 0; i < word.Length; i++)
+               {
+                   if (word[i] != ' ')
+                   {
+                       string imgId = "image-" + @i;
+                       string lblId = "label-" + @i;
+
+                       await JSRuntime.InvokeVoidAsync("applyStyleForElement",
+                                               new { id = imgId, attrib = "display", value = "none" });
+
+                       await JSRuntime.InvokeVoidAsync("applyStyleForElement",
+                                               new { id = lblId, attrib = "display", value = "inline" },
+                                               new { id = lblId, attrib = "font-size", value = "65px" });
+                   }
+               }
+               System.Threading.Thread.Sleep(1000);
+               await JSRuntime.InvokeAsync<object>("alert", "Winner :" + userName);
+                   _otherMoney=money;
+           });
+
+        await hubConnection.StartAsync();
+    }
+
+    Task Send() =>
+        hubConnection.SendAsync("LoginUser", userName, connectionID);
+
+    async Task Answer()
+    {
+        int totalEarnMoney=0;
+        if (answer.ToUpper() == word.ToUpper())
+        {
+            globalScore++;
+            for (int i = 0; i < word.Length; i++)
+            {
+                 bool result = await JSRuntime.InvokeAsync<bool>("getStyleForElement", 
+                        new { id = "label-" + @i, attrib = "display"});
+                        if(word[i] != ' ' && !result)
+                        {
+                            money+=10;
+                            totalEarnMoney+=10;
+                        }
+                if (word[i] != ' ')
+                {
+                    string imgId = "image-" + @i;
+                    string lblId = "label-" + @i;                                                           
+                    
+                    await JSRuntime.InvokeVoidAsync("applyStyleForElement",
+                                                    new { id = imgId, attrib = "display", value = "none" });
+
+                    await JSRuntime.InvokeVoidAsync("applyStyleForElement",
+                                                    new { id = lblId, attrib = "display", value = "inline" },
+                                                    new { id = lblId, attrib = "font-size", value = "65px" });                                                    
+                }                
+            }
+            await hubConnection.SendAsync("sendAnswer", userName, connectionID,money);
+            System.Threading.Thread.Sleep(1000);
+
+            await JSRuntime.InvokeAsync<object>("alert", "Winner :" + userName +"\n Total Reward :" +totalEarnMoney+"₺");
+
+            await hubConnection.SendAsync("Refresh");
+        }
+    }
+
+    public bool IsConnected =>
+        hubConnection.State == HubConnectionState.Connected;
+
+    public void Dispose()
+    {
+        _ = hubConnection.DisposeAsync();
+    }
+    private async Task Open(int counter, string imgId, string lblId, bool isOtherOpen = false)
+    {
+        if (isOtherOpen == false && money >= 10)
+        {
+            money = money - 10;
+            await JSRuntime.InvokeVoidAsync("applyStyleForElement",
+         new { id = imgId, attrib = "display", value = "none" });
+
+            await JSRuntime.InvokeVoidAsync("applyStyleForElement",
+          new { id = lblId, attrib = "display", value = "inline" },
+          new { id = lblId, attrib = "font-size", value = "65px" });
+
+            await hubConnection.SendAsync("OpenClient", counter, imgId, lblId, money);
+        }
+        else if (isOtherOpen == true)
+        {
+            await JSRuntime.InvokeVoidAsync("applyStyleForElement",
+        new { id = imgId, attrib = "display", value = "none" });
+
+            await JSRuntime.InvokeVoidAsync("applyStyleForElement",
+          new { id = lblId, attrib = "display", value = "inline" },
+          new { id = lblId, attrib = "font-size", value = "65px" });
+        }
+    }
+
+    bool IsRenderUI = false;
+    protected override void OnAfterRender(bool firstRender)
+    {
+        IsRenderUI = true;
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+            await JSRuntime.InvokeVoidAsync("FocusScript.setFocus", ReferenceToLoginControl);
+    }
+}

@@ -1,0 +1,74 @@
+{
+  "format": 1,
+  "restore": {
+    "/Users/borakasmer/Projects/blazorWords/blazorWords.csproj": {}
+  },
+  "projects": {
+    "/Users/borakasmer/Projects/blazorWords/blazorWords.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/Users/borakasmer/Projects/blazorWords/blazorWords.csproj",
+        "projectName": "blazorWords",
+        "projectPath": "/Users/borakasmer/Projects/blazorWords/blazorWords.csproj",
+        "packagesPath": "/Users/borakasmer/.nuget/packages/",
+        "outputPath": "/Users/borakasmer/Projects/blazorWords/obj/",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "/usr/local/share/dotnet/sdk/NuGetFallbackFolder"
+        ],
+        "configFilePaths": [
+          "/Users/borakasmer/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "netcoreapp3.1"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "netcoreapp3.1": {
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "netcoreapp3.1": {
+          "dependencies": {
+            "Microsoft.AspNetCore.SignalR.Client": {
+              "target": "Package",
+              "version": "[3.1.5, )"
+            },
+            "MongoDB.Driver": {
+              "target": "Package",
+              "version": "[2.10.4, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.AspNetCore.App": {
+              "privateAssets": "none"
+            },
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/3.1.301/RuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}
