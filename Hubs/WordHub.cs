@@ -121,7 +121,7 @@ namespace BlazorSignalRApp.Server.Hubs
                 {
                     clientList.TryRemove(userName, out _);
                 }
-                if (clientList.Count == 1)
+                if (clientList.Count == 1 || clientList.Count == 0)
                 {
                     await Clients.Others.SendAsync("RemoveUser", userName, connectionId);
                 }
