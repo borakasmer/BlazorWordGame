@@ -28,10 +28,11 @@ namespace BlazorSignalRApp.Server.Hubs
 
             if (clientList.Count == 1)
             {
-                otherName = clientList.FirstOrDefault().Key;
+                //    otherName = clientList.FirstOrDefault().Key;
                 /* await Clients.Caller.SendAsync("GetConnectionId", this.Context.ConnectionId, otherName, otherMoney); */
-                Console.WriteLine("Client Name:" + otherName);
-                await Clients.Caller.SendAsync("GetConnectionId", this.Context.ConnectionId, otherName, otherMoney);
+                //    Console.WriteLine("Client Name:" + otherName);
+                //    await Clients.Caller.SendAsync("GetConnectionId", this.Context.ConnectionId, otherName, otherMoney);
+                await Clients.Others.SendAsync("SendUserInformation", this.Context.ConnectionId);
             }
             else if (clientList.Count == 0)
             {
@@ -46,6 +47,11 @@ namespace BlazorSignalRApp.Server.Hubs
              {
                  Console.WriteLine("clientlist Item:"+item.Key);
              } */
+        }
+
+        public async Task SendUserInformation(string otherUserName, int otherMoney, string senderConnectionID)
+        {
+            await Clients.Client(senderConnectionID).SendAsync("GetUserInformation",otherUserName,otherMoney,senderConnectionID);
         }
 
         public async Task Refresh()

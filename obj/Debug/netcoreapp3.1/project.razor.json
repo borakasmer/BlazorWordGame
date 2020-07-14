@@ -13,14 +13,14 @@
     "TagHelpers": [
       {
         "Kind": "Components.Component",
-        "Name": "blazorWords.Pages.Words",
+        "Name": "blazorWords.App",
         "AssemblyName": "blazorWords",
         "Documentation": null,
         "TagOutputHint": null,
         "CaseSensitive": true,
         "TagMatchingRules": [
           {
-            "TagName": "Words",
+            "TagName": "App",
             "ParentTag": null,
             "TagStructure": 0,
             "Attributes": [],
@@ -32,19 +32,19 @@
         "Diagnostics": [],
         "Metadata": {
           "Runtime.Name": "Components.IComponent",
-          "Common.TypeName": "blazorWords.Pages.Words"
+          "Common.TypeName": "blazorWords.App"
         }
       },
       {
         "Kind": "Components.Component",
-        "Name": "blazorWords.Pages.Words",
+        "Name": "blazorWords.App",
         "AssemblyName": "blazorWords",
         "Documentation": null,
         "TagOutputHint": null,
         "CaseSensitive": true,
         "TagMatchingRules": [
           {
-            "TagName": "blazorWords.Pages.Words",
+            "TagName": "blazorWords.App",
             "ParentTag": null,
             "TagStructure": 0,
             "Attributes": [],
@@ -56,7 +56,7 @@
         "Diagnostics": [],
         "Metadata": {
           "Runtime.Name": "Components.IComponent",
-          "Common.TypeName": "blazorWords.Pages.Words",
+          "Common.TypeName": "blazorWords.App",
           "Components.NameMatch": "Components.FullyQualifiedNameMatch"
         }
       },
@@ -258,14 +258,14 @@
       },
       {
         "Kind": "Components.Component",
-        "Name": "blazorWords.App",
+        "Name": "blazorWords.Pages.Words",
         "AssemblyName": "blazorWords",
         "Documentation": null,
         "TagOutputHint": null,
         "CaseSensitive": true,
         "TagMatchingRules": [
           {
-            "TagName": "App",
+            "TagName": "Words",
             "ParentTag": null,
             "TagStructure": 0,
             "Attributes": [],
@@ -277,19 +277,19 @@
         "Diagnostics": [],
         "Metadata": {
           "Runtime.Name": "Components.IComponent",
-          "Common.TypeName": "blazorWords.App"
+          "Common.TypeName": "blazorWords.Pages.Words"
         }
       },
       {
         "Kind": "Components.Component",
-        "Name": "blazorWords.App",
+        "Name": "blazorWords.Pages.Words",
         "AssemblyName": "blazorWords",
         "Documentation": null,
         "TagOutputHint": null,
         "CaseSensitive": true,
         "TagMatchingRules": [
           {
-            "TagName": "blazorWords.App",
+            "TagName": "blazorWords.Pages.Words",
             "ParentTag": null,
             "TagStructure": 0,
             "Attributes": [],
@@ -301,7 +301,7 @@
         "Diagnostics": [],
         "Metadata": {
           "Runtime.Name": "Components.IComponent",
-          "Common.TypeName": "blazorWords.App",
+          "Common.TypeName": "blazorWords.Pages.Words",
           "Components.NameMatch": "Components.FullyQualifiedNameMatch"
         }
       },
